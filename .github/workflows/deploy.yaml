@@ -7,7 +7,7 @@ jobs:
   build_and_publish_csharp:
     runs-on: ubuntu-latest
     env:
-      NUGET_TOKEN: ${{ secrets.UPLOAD_KEY }}
+      NUGET_TOKEN: ${{ secrets.NUGET_UPLOAD_KEY }}
       PROJECT_NAME: Namu.Serialization
       PROJECT_PATH: Src/Namu.Serialization
 
