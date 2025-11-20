@@ -7,9 +7,9 @@ jobs:
   build_and_publish_csharp:
     runs-on: ubuntu-latest
     env:
-      NUGET_TOKEN: ${{ secrets.NUGET_UPLOAD_KEY }}
-      PROJECT_NAME: Jay.Serialization
-      PROJECT_PATH: Src/Jay.Serialization
+      NUGET_TOKEN: ${{ secrets.UPLOAD_KEY }}
+      PROJECT_NAME: Namu.Serialization
+      PROJECT_PATH: Src/Namu.Serialization
 
     steps:
       - name: Checkout repository
