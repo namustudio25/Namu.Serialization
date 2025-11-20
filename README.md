@@ -1,6 +1,6 @@
 ## Introduction
 
-**A lightweight Json.NET–based serialization library that supports object identity, circular references, and per-object custom serialization.**
+**A Json.NET–based serialization library that supports object identity, circular references, and per-object custom serialization.**
 
 Each serializable type can implement  
 `GetObjectData(SerializableObjectInfo info)` and  
