@@ -8,117 +8,87 @@ Each serializable type can implement
 to fully control how its data is stored and restored.
 
 This follows an *ISerializable-style custom serialization pattern*, enabling precise control over complex object graphs, shared references, and state reconstruction.
+
+## Usage Example
 ```C#
-var fruits = new Category() { Name = "Fruits" };
-var coffee = new Category() { Name = "Coffee" };
+Table table = new Table() { Name = "MyTable" };
+var row1 = table.NewRow();
+table.AddRow(row1);
 
-Store store = new Store();
-store.Categories.Add(fruits);
-store.Categories.Add(coffee);
+Console.WriteLine(object.ReferenceEquals(table, table.Rows[0].Table));
+Console.WriteLine(object.ReferenceEquals(table.Rows[0], table.Rows[1]));
+// True
+// True
 
-Product apple = new Product() { Name = "Apple", Category = fruits };
-Product banana = new Product() { Name = "Banana", Category = fruits };
+string json = Namu.Serialization.Serializer.Serialize(table);
 
-store.Products.Add(apple);
-store.Products.Add(banana);
+Table table2 = Namu.Serialization.Serializer.Deserialize<Table>(json);
 
-Product americano = new Product() { Name = "Americano", Category = coffee };
-Product moca = new Product() { Name = "Moca", Category = coffee };
-            
-store.Products.Add(americano);
-store.Products.Add(moca);
-
-string json = Jay.Serialization.Serializer.Serialize(store);
-
-Store store2 = Jay.Serialization.Serializer.Deserialize<Store>(json);
-
-foreach (var category in store2.Categories)
-{
-    Console.WriteLine($"{category.Name}");
-}
-
-foreach (var product in store2.Products)
-{
-    Console.WriteLine($"{product.Category.Name}, {product.Name}");
-}
-
-Console.WriteLine(store2.Products[0].Category == store2.Products[1].Category);
-
-// Fruits
-// Coffee
-// Fruits, Apple
-// Fruits, Banana
-// Coffee, Americano
-// Coffee, Moca
+Console.WriteLine(object.ReferenceEquals(table, table.Rows[0].Table));
+Console.WriteLine(object.ReferenceEquals(table.Rows[0], table.Rows[1]));
+// True
 // True
 ```
 
+## Customization Example
 ```C#
-internal class Store : ISerializableObject
+class Row : ISerializableObject
 {
-    public List<Category> Categories { get; set; } = new List<Category>();
-    public List<Product> Products { get; set; } = new List<Product>();
+    //public string Name { get; set; } = null!;// ver1
+    public string Name2 { get; set; } = null!;// ver2
 
-    //requires empty constructor
-    public Store()
-    {
-            
-    }
+    public Table Table { get; set; } = null!;
 
     public void GetObjectData(SerializableObjectInfo info)
     {
-        info.AddValue(nameof(Categories), Categories);
-        info.AddValue(nameof(Products), Products);
+        info.AddValue("Version", 2);
+        info.AddValue(nameof(Name2), Name2);
+        info.AddValue(nameof(Table), Table);
     }
+
     public void SetObjectData(SerializableObjectInfo info)
     {
-        Categories = info.GetValue<List<Category>>(nameof(Categories))!;
-        Products = info.GetValue<List<Product>>(nameof(Products))!;
+        var version = info.GetValue<int>("Version");
+
+        if (version == 1)
+            Name2 = info.GetValue<string>("Name");
+        else
+            Name2 = info.GetValue<string>(nameof(Name2));
+
+        Table = info.GetValue<Table>(nameof(Table));
     }
 }
 
-internal class Category : ISerializableObject
+class Table : ISerializableObject
 {
     public string Name { get; set; } = null!;
 
-    //requires empty constructor
-    public Category()
+    public List<Row> Rows { get; set; } = new List<Row>();
+
+    public Row NewRow()
+    { 
+        Row row = new Row();
+        row.Table = this;
+        Rows.Add(row);
+        return row;
+    }
+        
+    public void AddRow(Row row)
     {
-            
+        row.Table = this;
+        Rows.Add(row);
     }
 
     public void GetObjectData(SerializableObjectInfo info)
     {
         info.AddValue(nameof(Name), Name);
+        info.AddValue(nameof(Rows), Rows);            
     }
 
     public void SetObjectData(SerializableObjectInfo info)
     {
-        Name = info.GetValue<string>(nameof(Name))!;
-    }
-}
-
-internal class Product : ISerializableObject
-{
-    public string Name { get; set; } = null!;
-
-    public Category Category { get; set; } = null!;
-
-    //requires empty constructor
-    public Product()
-    {
-            
-    }
-    public void GetObjectData(SerializableObjectInfo info)
-    {
-        info.AddValue(nameof(Name), Name);
-        info.AddValue(nameof(Category), Category);
-    }
-
-    public void SetObjectData(SerializableObjectInfo info)
-    {
-        Name = info.GetValue<string>(nameof(Name))!;
-        Category = info.GetValue<Category>(nameof(Category))!;
+        Name = info.GetValue<string>(nameof(Name));
+        Rows = info.GetValue<List<Row>>(nameof(Rows));
     }
 }
 ```
