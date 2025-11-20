@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;net8.0</TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<Version>1.0.0</Version>
+	<Authors>Namu</Authors>
+	<Company>NamuStudio</Company>
+	<Description>Custom JSON serialization library supporting object circular references.</Description>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="README.md">
+			<Pack>true</Pack>
+			<!-- Add in NuGet -->
+			<PackagePath></PackagePath>
+			<!-- at root -->
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />	
+  </ItemGroup>
+
+</Project>
+
